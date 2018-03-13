@@ -9,6 +9,11 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Color(0xff3277D8)),
+        elevation: 0,
+      ),
       body: Container(
         padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
         constraints: BoxConstraints.expand(),
@@ -17,9 +22,9 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             children: <Widget>[
               SizedBox(
-                height: 140,
+                height: 80,
               ),
-              Image.asset('ic_red_car.png'),
+              Image.asset('ic_car_red.png'),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 40, 0, 6),
                 child: Text(
@@ -72,6 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               TextField(
                 style: TextStyle(fontSize: 18, color: Colors.black),
+                obscureText: true,
                 decoration: InputDecoration(
                     labelText: "Password",
                     prefixIcon:
