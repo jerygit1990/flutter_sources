@@ -1,3 +1,4 @@
+import 'package:fl_uberapp/src/firebase/fire_base_auth.dart';
 import 'package:fl_uberapp/src/resources/register_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
+  final FirAuth firAuth = new FirAuth();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 145, 0, 20),
                 child: TextField(
+                  controller: _emailController,
                   style: TextStyle(fontSize: 18, color: Colors.black),
                   decoration: InputDecoration(
                       labelText: "Email",
@@ -48,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               TextField(
+                controller: _passController,
                 style: TextStyle(fontSize: 18, color: Colors.black),
                 obscureText: true,
                 decoration: InputDecoration(
@@ -76,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   height: 52,
                   child: RaisedButton(
-                    onPressed: () {},
+                    onPressed: _onLoginClick,
                     child: Text(
                       "Log In",
                       style: TextStyle(color: Colors.white, fontSize: 18),
@@ -113,5 +120,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _onLoginClick() {
+    String _email = _emailController.text;
+    String _pass = _passController.text;
+
+    firAuth.signUp(_email, _pass);
   }
 }
