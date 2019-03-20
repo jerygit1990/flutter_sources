@@ -11,7 +11,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
-  final FirAuth firAuth = new FirAuth();
+//  final FirAuth firAuth = new FirAuth();
 
   @override
   Widget build(BuildContext context) {
@@ -126,6 +126,6 @@ class _LoginPageState extends State<LoginPage> {
     String _email = _emailController.text;
     String _pass = _passController.text;
 
-    firAuth.signUp(_email, _pass);
+//    firAuth.signUp(_email, _pass);
   }
 }
