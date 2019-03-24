@@ -1,26 +1,33 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/services.dart';
 
 class FirAuth {
-  static final int errTypeEmail = 1;
-  static final int errTypePass = 2;
-  static final int errTypeCommon = 3;
-
   final FirebaseAuth _fireBaseAuth = FirebaseAuth.instance;
 
   void signUp(String email, String pass, String name, String phone,
-      Function onSuccess) {
+      Function onSuccess, Function(String) onRegisterError) {
     _fireBaseAuth
         .createUserWithEmailAndPassword(email: email, password: pass)
         .then((user) {
-      _createUser(user.uid, name, phone, onSuccess);
+      _createUser(user.uid, name, phone, onSuccess, onRegisterError);
     }).catchError((err) {
-      // TODO error handling
+      _onSignUpErr(err.code, onRegisterError);
     });
   }
 
-  _createUser(String userId, String name, String phone, Function onSuccess) {
+  void signIn(String email, String pass, Function onSuccess,
+      Function(String) onSignInError) {
+    _fireBaseAuth
+        .signInWithEmailAndPassword(email: email, password: pass)
+        .then((user) {
+      onSuccess();
+    }).catchError((err) {
+      onSignInError("Sign-In fail, please try again");
+    });
+  }
+
+  _createUser(String userId, String name, String phone, Function onSuccess,
+      Function(String) onRegisterError) {
     var user = Map<String, String>();
     user["name"] = name;
     user["phone"] = phone;
@@ -31,71 +38,29 @@ class FirAuth {
       onSuccess();
     }).catchError((err) {
       print("err: " + err.toString());
+      onRegisterError("SignUp fail, please try again");
     }).whenComplete(() {
       print("completed");
     });
   }
 
   ///
-  Future signUp2(
-      String email, String pass, Function(int, String) onRegisterError) async {
-    final FirebaseUser _user = await _fireBaseAuth
-        .createUserWithEmailAndPassword(email: email, password: pass)
-        .then((vl) {
-      print("onvalue: ");
-    }).catchError((err) {
-      if (_isInvalidEmail(err.code, onRegisterError)) {
-        return;
-      }
-      if (_isInvalidPassword(err.code, onRegisterError)) {
-        return;
-      }
-      //PlatformException
-      print("errors: " + err.code);
-      print(err);
-    });
 
-//    print(_user);
-//    print(_user.email);
-//    print(_user.toString());
-
-//    _firebaseAuth.currentUser().then((us) {
-//      UserUpdateInfo p = new UserUpdateInfo();
-//      p.displayName = "Mr. Jery";
-//      us.updateProfile(p);
-//    });
-//    _testAddUser(_user.uid);
-
-    ///
-  }
-
-  ///
-
-  bool _isInvalidEmail(String code, Function(int, String) onRegisterError) {
+  void _onSignUpErr(String code, Function(String) onRegisterError) {
     switch (code) {
       case "ERROR_INVALID_EMAIL":
       case "ERROR_INVALID_CREDENTIAL":
-        onRegisterError(errTypeEmail, "Email không hợp lệ");
-        return true;
+        onRegisterError("Invalid email");
+        break;
       case "ERROR_EMAIL_ALREADY_IN_USE":
-        onRegisterError(errTypeEmail, "Email đã tồn tại");
-        return true;
+        onRegisterError("Email has existed");
+        break;
+      case "ERROR_WEAK_PASSWORD":
+        onRegisterError("The password is not strong enough");
+        break;
       default:
-        return false;
-    }
-  }
-
-  bool _isInvalidPassword(String code, Function(int, String) onRegisterError) {
-    switch (code) {
-      case "ERROR_INVALID_EMAIL":
-      case "ERROR_INVALID_CREDENTIAL":
-        onRegisterError(errTypeEmail, "Email không hợp lệ");
-        return true;
-      case "ERROR_EMAIL_ALREADY_IN_USE":
-        onRegisterError(errTypeEmail, "Email đã tồn tại");
-        return true;
-      default:
-        return false;
+        onRegisterError("SignUp fail, please try again");
+        break;
     }
   }
 

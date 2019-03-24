@@ -1,4 +1,7 @@
-import 'package:fl_uberapp/src/firebase/fire_base_auth.dart';
+import 'package:fl_uberapp/src/app.dart';
+import 'package:fl_uberapp/src/resources/dialog/loading_dialog.dart';
+import 'package:fl_uberapp/src/resources/dialog/msg_dilog.dart';
+import 'package:fl_uberapp/src/resources/home_page.dart';
 import 'package:fl_uberapp/src/resources/register_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +14,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
-//  final FirAuth firAuth = new FirAuth();
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +125,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _onLoginClick() {
-    String _email = _emailController.text;
-    String _pass = _passController.text;
+    String email = _emailController.text;
+    String pass = _passController.text;
 
-//    firAuth.signUp(_email, _pass);
+    var authBloc = MyApp.of(context).authBloc;
+    LoadingDialog.showLoadingDialog(context, "Loading...");
+    authBloc.signIn(email, pass, () {
+      LoadingDialog.hideLoadingDialog(context);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => HomePage()));
+    }, (msg) {
+      LoadingDialog.hideLoadingDialog(context);
+      MsgDialog.showMsgDialog(context, "Sign-In", msg);
+    });
   }
 }

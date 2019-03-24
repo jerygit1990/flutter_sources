@@ -1,12 +1,16 @@
-import 'package:fl_uberapp/src/resources/login_page.dart';
+import 'package:fl_uberapp/src/blocs/auth_bloc.dart';
 import 'package:flutter/material.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends InheritedWidget {
+  final AuthBloc authBloc;
+  MyApp(this.authBloc, Widget child) : super(child: child);
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: LoginPage(),
-    );
+  bool updateShouldNotify(InheritedWidget oldWidget) {
+    return false;
+  }
+
+  static MyApp of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(MyApp);
   }
 }
