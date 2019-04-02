@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:fl_uberapp/src/model/place_item_res.dart';
 import 'package:fl_uberapp/src/model/step_res.dart';
 import 'package:fl_uberapp/src/repository/place_services.dart';
 import 'package:fl_uberapp/src/resources/widgets/home_menu.dart';
 import 'package:fl_uberapp/src/resources/widgets/ride_picker.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -18,7 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   var ggKey = GlobalKey();
-  Map<String, Marker> markers = Map();
+  final Map<String, Marker> _markers = <String, Marker>{};
+
   GoogleMapController _mapController;
 
   @override
@@ -82,47 +79,69 @@ class _HomePageState extends State<HomePage> {
 
   void onPlaceSelected(PlaceItemRes place, bool fromAddress) {
     var mkId = fromAddress ? "from_address" : "to_address";
-//    if (markers[mkId] != null) {
-//      _mapController.removeMarker(markers[mkId]);
-//    }
+    _addMarker(mkId, place);
+    _moveCamera();
+    _checkDrawPolyline();
+  }
 
-    markers[mkId] = Marker(
+  void _addMarker(String mkId, PlaceItemRes place) async {
+    // remove old
+    print(mkId);
+    print(_markers);
+    _markers.remove(mkId);
+    _mapController.clearMarkers();
+
+    _markers[mkId] = Marker(
         mkId,
         MarkerOptions(
             position: LatLng(place.lat, place.lng),
             infoWindowText: InfoWindowText(place.name, place.address)));
-//    markers[mkId] = Marker(
-//        markerId: mkId,
-//        position: LatLng(place.lat, place.lng),
-//        infoWindow: InfoWindow(title: place.name, snippet: place.address));
-//    setState(() {});
 
-//    _mapController.removeMarker()
-    _mapController.addMarker(markers[mkId].options);
+    for (var m in _markers.values) {
+      await _mapController.addMarker(m.options);
+    }
+
     print("added marker: " + mkId);
+    print(_markers);
 
-    if (markers.values.length > 1) {
+//    _moveCamera();
+//    _checkDrawPolyline();
+  }
+
+  void _moveCamera() {
+    print("move camera: ");
+    print(_markers);
+
+    if (_markers.values.length > 1) {
+      var fromLatLng = _markers["from_address"].options.position;
+      var toLatLng = _markers["to_address"].options.position;
+
       LatLng s, n;
-      if (markers["from_address"].options.position.latitude <=
-          markers["to_address"].options.position.latitude) {
-        s = markers["from_address"].options.position;
-        n = markers["to_address"].options.position;
+      if (fromLatLng.latitude <= toLatLng.latitude) {
+        s = fromLatLng;
+        n = toLatLng;
       } else {
-        n = markers["from_address"].options.position;
-        s = markers["to_address"].options.position;
+        n = fromLatLng;
+        s = toLatLng;
       }
-      print(s);
-      print(n);
-//      print(s.la)
 
       LatLngBounds bounds = LatLngBounds(northeast: n, southwest: s);
-      _mapController.moveCamera(CameraUpdate.newLatLngBounds(bounds, 10));
+      _mapController.moveCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    } else {
+      _mapController.moveCamera(CameraUpdate.newLatLng(
+          _markers.values.elementAt(0).options.position));
+    }
+  }
 
+  void _checkDrawPolyline() {
+//  remove old polyline
+    _mapController.clearPolylines();
+
+    if (_markers.length > 1) {
+      var from = _markers["from_address"].options.position;
+      var to = _markers["to_address"].options.position;
       PlaceService.getStep(
-              markers["from_address"].options.position.latitude,
-              markers["from_address"].options.position.longitude,
-              markers["to_address"].options.position.latitude,
-              markers["to_address"].options.position.longitude)
+              from.latitude, from.longitude, to.latitude, to.longitude)
           .then((vl) {
         List<Steps> rs = vl;
         List<LatLng> paths = new List();
@@ -131,16 +150,11 @@ class _HomePageState extends State<HomePage> {
               .add(LatLng(t.startLocation.latitude, t.startLocation.longitude));
           paths.add(LatLng(t.endLocation.latitude, t.endLocation.longitude));
         }
+
+//        print(paths);
         _mapController.addPolyline(PolylineOptions(
             points: paths, color: Color(0xFF3ADF00).value, width: 4));
       });
-
-//      GoogleMap k = ggKey.currentWidget;
-//      k.li
-
-    } else {
-      _mapController
-          .moveCamera(CameraUpdate.newLatLng(markers[mkId].options.position));
     }
   }
 }

@@ -44,25 +44,12 @@ class PlaceService {
         "&key=" +
         Configs.GG_KEY;
 
-//    String url = "origin=" +
-//        lat.toString() +
-//        "," +
-//        lng.toString() +
-//        "&destination=" +
-//        tolat.toString() +
-//        "," +
-//        tolng.toString() +
-//        "&key=" +
-//        key;
-//
-//    final BASE_URL = "https://maps.googleapis.com/maps/api/directions/json?";
-
     print(url);
     final JsonDecoder _decoder = new JsonDecoder();
     return http.get(url).then((http.Response response) {
       String res = response.body;
       int statusCode = response.statusCode;
-      print("API Response: " + res);
+//      print("API Response: " + res);
       if (statusCode < 200 || statusCode > 400 || json == null) {
         res = "{\"status\":" +
             statusCode.toString() +
