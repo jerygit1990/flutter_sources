@@ -1,6 +1,5 @@
 import 'package:fl_uberapp/src/blocs/place_bloc.dart';
 import 'package:fl_uberapp/src/model/place_item_res.dart';
-import 'package:fl_uberapp/src/repository/place_services.dart';
 import 'package:flutter/material.dart';
 
 class RidePickerPage extends StatefulWidget {

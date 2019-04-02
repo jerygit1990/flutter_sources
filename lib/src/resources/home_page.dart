@@ -1,6 +1,7 @@
 import 'package:fl_uberapp/src/model/place_item_res.dart';
 import 'package:fl_uberapp/src/model/step_res.dart';
 import 'package:fl_uberapp/src/repository/place_services.dart';
+import 'package:fl_uberapp/src/resources/widgets/car_pickup.dart';
 import 'package:fl_uberapp/src/resources/widgets/home_menu.dart';
 import 'package:fl_uberapp/src/resources/widgets/ride_picker.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,13 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            Positioned(
+              bottom: 40,
+              left: 20,
+              height: 200,
+              right: 20,
+              child: CarPickup(),
+            )
           ],
         ),
       ),
