@@ -2,15 +2,15 @@ import 'dart:async';
 import 'package:fl_uberapp/src/configs/configs.dart';
 import 'package:fl_uberapp/src/model/place_item_res.dart';
 import 'package:fl_uberapp/src/model/step_res.dart';
+import 'package:fl_uberapp/src/model/trip_info_res.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PlaceService {
-  static final String key = "AIzaSyD2wvfkq79nsuvbhDLZ-xY5CF_MToWvmIc";
   static Future<List<PlaceItemRes>> searchPlace(String keyword) async {
     String url =
         "https://maps.googleapis.com/maps/api/place/textsearch/json?key=" +
-            key +
+            Configs.ggKEY2 +
             "&language=vi&region=VN&query=" +
             Uri.encodeQueryComponent(keyword);
 
@@ -42,7 +42,7 @@ class PlaceService {
         "?" +
         parameters +
         "&key=" +
-        Configs.GG_KEY;
+        Configs.ggKEY;
 
     print(url);
     final JsonDecoder _decoder = new JsonDecoder();
@@ -59,15 +59,18 @@ class PlaceService {
         throw new Exception(res);
       }
 
-      List<Steps> steps;
+      TripInfoRes tripInfoRes;
       try {
-        steps =
-            parseSteps(_decoder.convert(res)["routes"][0]["legs"][0]["steps"]);
+        var json = _decoder.convert(res);
+        var steps = parseSteps(json["routes"][0]["legs"][0]["steps"]);
+        tripInfoRes = TripInfoRes(
+            json["routes"][0]["legs"][0]["distance"]["value"], steps);
       } catch (e) {
+        print(e.toString());
         throw new Exception(res);
       }
 
-      return steps;
+      return tripInfoRes;
     });
   }
 
